@@ -160,22 +160,10 @@ void ExecuteInputs(int p0action,int p1action)
 
 roundOn = FALSE;
 
-
- // if(p0input == 1)
- // {p0pos = p0pos + 1;}
- // if(p0input == 2)
- // {p0pos = p0pos - 1;}
- // if(p1input == 1)
- // {p1pos = p1pos + 1;}
- // if(p1input == 2)
- // {p1pos = p1pos - 1;}
 	//reset player inputs to blank
 	p0cmd = 0;
 	p1cmd = 0;
-  // if(p0pos < 0){p0pos = 0;}
-  // if(p0pos >= boardsize){p0pos = boardsize - 1;}
-  // if(p1pos < 0){p1pos = 0;}
-  // if(p1pos >= boardsize){p1pos = boardsize - 1;}
+
 
 }
 
@@ -244,15 +232,19 @@ void SetPlayerInputs(int keypressed)
         roundOn = TRUE;
 				ExecuteInputs(p0cmd,p1cmd);
 
+          // asterisk for the ceiling and floor to create a hallway visual
         for (int n = 0; n < 10; n++){wprintw(win,"\n");}
+        for (int n = 0; n < boardsize * squaresize; n++){wprintw(win,"*");}
+        for (int n = 0; n < 2; n++){wprintw(win,"\n");}
 
-
-					ResetBoard();
+				ResetBoard();
 				PlacePlayerZero();
 				PlacePlayerOne();
 
 				DrawBoard();
-
+        // asterisk for the ceiling and floor to create a hallway visual
+        for (int n = 0; n < 2; n++){wprintw(win,"\n");}
+        for (int n = 0; n < boardsize * squaresize; n++){wprintw(win,"*");}
 			}
 
 
@@ -271,14 +263,15 @@ void DrawBoard()
 			colcount = 0;
 			while (colcount < squaresize * boardsize)
 			{
-					wprintw(win,"%c", rows[rowcount][colcount]);
+				wprintw(win,"%c", rows[rowcount][colcount]);
 				colcount = colcount + 1;
 			}
 			rowcount = rowcount + 1;
 			wprintw(win,"\n");
 		}
+
     wprintw(win,"%s",p0result);
-  wprintw(win,"%s",p1result);
+    wprintw(win,"%s",p1result);
 
 }
 void ResetBoard()
