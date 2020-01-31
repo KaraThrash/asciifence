@@ -31,3 +31,5 @@ void DrawBoard();
 void PlacePlayerOne();
 void PlacePlayerZero();
 void ResetBoard();
+
+int string_size(const char * str);

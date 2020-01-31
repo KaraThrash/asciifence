@@ -9,18 +9,29 @@
 // g++ fencing.cpp -lncurses -o f.out
 
 using namespace std;
+
+//TODO: error message if terminal is to small
+
+//TODO: break into utils file
 int sign(int x)
 {
       if (x > 0) return 1;
     if (x < 0) return -1;
     return 0;
 }
+int string_size(const char * str)
+{
+    // const char * str = "Hello World !";
+    int size = 0;
+    while (str[size] != '\0') size++;
+    return size;
+}
 void GripChange(int p0change,int p1change)
 {
   if(p0change == grip || p0change == -grip )
   {
     p0stance = p0stance + p0change;
-    p0result = "p0 grip change";
+    p0result = "===p0 grip change";
     //high med low grip
     if(p0stance < 0){p0stance = 0;}
       if(p0stance > 2){p0stance = 2;}
@@ -28,7 +39,7 @@ void GripChange(int p0change,int p1change)
   if(p1change == 1 || p1change == -1 )
   {
       //high med low grip
-        p1result = "p1 grip change";
+        p1result = "===p1 grip change";
     p1stance = p1stance + p1change;
     if(p1stance < 0){p1stance = 0;}
       if(p1stance > 2){p1stance = 2;}
@@ -39,26 +50,26 @@ void ThrustAttack(int p0change,int p1change)
   if(p0change == thrust && p1change == thrust) // both thrust
   {
     if(p0stance != p1stance){
-            p0result = "p0 thrust, and hit";
-            p1result = "p1 thrust, and hit";
+            p0result = "===p0 thrust, and hit";
+            p1result = "===p1 thrust, and hit";
         } //both hit
-    else{p0result = "p0 thrust, and miss";
-    p1result = "p1 thrust, and miss";} //bounce off
+    else{p0result = "===p0 thrust, and miss";
+    p1result = "===p1 thrust, and miss";} //bounce off
 
   }
   else
   {
     if(p0change == thrust ) // player 0 thrust
     {
-      if(abs(p1change) == parry && p1stance == p0stance){p0result = "p0 thrust, and p1 parries";} //parry beats thrust at same grip
-        if(abs(p1change) == grip && p1stance == p0stance){p0result = "p0 thrust, and p1 deflects";} //grip change blocks thrust at same grip
-        else{p0result = "p0 thrust, and hits";} //p0 hits
+      if(abs(p1change) == parry && p1stance == p0stance){p0result = "===p0 thrust, and p1 parries";} //parry beats thrust at same grip
+        if(abs(p1change) == grip && p1stance == p0stance){p0result = "===p0 thrust, and p1 deflects";} //grip change blocks thrust at same grip
+        else{p0result = "===p0 thrust, and hits";} //p0 hits
 
     }
     if(p1change == thrust ) // player 1 thrust
     {
-      if(abs(p0change) == parry && p1stance == p0stance){p1result = "p1 thrust, and p0 parries";} //parry beats thrust at same grip
-        if(abs(p0change) == grip && p1stance == p0stance){p1result = "p1 thrust, and p0 deflects";} //grip change blocks thrust at same grip
+      if(abs(p0change) == parry && p1stance == p0stance){p1result = "===p1 thrust, and p0 parries";} //parry beats thrust at same grip
+        if(abs(p0change) == grip && p1stance == p0stance){p1result = "===p1 thrust, and p0 deflects";} //grip change blocks thrust at same grip
         else{} //p0 hits
 
     }
@@ -69,58 +80,68 @@ void SlashAttack(int p0change,int p1change)
 {
   if(p0change == slash && p1change == slash) // both slash
   {
-    p0result = "p0 slash, and misses";
-      p1result = "p1 slash, and misses";
+    p0result = "===p0 slash, and misses";
+      p1result = "===p1 slash, and misses";
     //bounce off
   }
   else
   {
     if(p0change == slash ) // player 0 thrust
     {
-      if(abs(p1change) == block && abs(p1stance - p0stance) <= 1){p0result = "p0 slash, and p1 blocks";} //block protects 2 spaces //there is no mid block
-        else{p0result = "p0 slash, and hit";} //p0 hits
+      if(abs(p1change) == block && abs(p1stance - p0stance) <= 1){p0result = "===p0 slash, and p1 blocks";} //block protects 2 spaces //there is no mid block
+        else{p0result = "===p0 slash, and hit";} //p0 hits
 
     }
     if(p1change == slash ) // player 1 thrust
     {
-      if(abs(p0change) == block && abs(p1stance - p0stance) <= 1){p1result = "p1 slash, and p0 blocks";} //block protects 2 spaces //there is no mid block
-        else{p1result = "p1 slash, and hit";} //p0 hits
+      if(abs(p0change) == block && abs(p1stance - p0stance) <= 1){p1result = "===p1 slash, and p0 blocks";} //block protects 2 spaces //there is no mid block
+        else{p1result = "===p1 slash, and hit";} //p0 hits
 
     }
   }
 
 }
+
+
 //TODO: clean this up: the logic can be more concise for checking turns where both players move
 void PlayerMove(int p0change,int p1change)
 {
-  //both players move
-    if( p1pos >= boardsize && p0change == movement){p1change = 0;}
-    if( p0pos <= 0 && p0change == -movement){p0change = 0;}
+
+
+
+    //if player is at the edge they cant move in that direction
+    if( p1pos >= boardsize - 1 && p1change == movement){p1change = 0; p1result = "===p1's back is against the wall";}
+    if( p0pos <= 0 && p0change == -movement){p0change = 0;p0result = "===p0's back is against the wall";}
+
+
+      //both players move
     if(abs(p0change) == movement && abs(p1change) == movement)
     {
-            if((sign(p0change) + p0pos) == (sign(p1change) + p1pos ) || (sign(p0change) + p0pos) >= p1pos  || (sign(p1change) + p1pos) <= p0pos)
+            if((sign(p0change) + p0pos) == (sign(p1change) + p1pos ) || (sign(p0change) + p0pos) >= (sign(p1change) + p1pos)  || (sign(p1change) + p1pos) <= (sign(p0change) + p0pos))
             {
-              p0result = "p0 bumps heads";
-                p1result = "p1 bumps heads";
+              p0result = "===p0 bumps heads";
+                p1result = "===p1 bumps heads";
                 if( abs(p0pos - p1pos) == 2){ p0pos = p0pos + 1;}
             }else
             {
 
               p0pos = (sign(p0change) + p0pos) ;
                 p1pos = (sign(p1change) + p1pos) ;
-              p0result = "p0 moves";
-                p1result = "p1 moves";
+              p0result = "===p0 moves";
+                p1result = "===p1 moves";
+
             }
 
     }else
     {
+
       if(abs(p0change) == movement )
       {
               if((sign(p0change) + p0pos) != p1pos && (sign(p0change) + p0pos) < p1pos  && (sign(p0change) + p0pos) >= 0  )
               {
                 p0pos = (sign(p0change) + p0pos) ;
 
-              }else{p0result = "p 0 cant move  :";}
+              }else{p0result = "===p 0 cant move  :";}
 
       }
       if(abs(p1change) == movement )
@@ -128,8 +149,8 @@ void PlayerMove(int p0change,int p1change)
               if((sign(p1change) + p1pos) != p0pos && (sign(p0change) + p1pos) >= p0pos && (sign(p0change) + p1pos) < boardsize)
               {
                 p1pos = (sign(p1change) + p1pos) ;
-                p1result = "moves";
-              }else{p1result = "p1 cant move  :";}
+                p1result = "===moves";
+              }else{p1result = "===p1 cant move  :";}
 
       }
     }
@@ -150,8 +171,8 @@ void ExecuteInputs(int p0action,int p1action)
     {SlashAttack(p0action,p1action);}
   }else
   {
-    if(p0cmd == thrust || p0cmd == slash){p0result = "  p0 out of range  :";}
-    if(p1cmd == thrust || p1cmd == slash){p1result = "  p1 out of range  :";}
+    if(p0cmd == thrust || p0cmd == slash){p0result = "===  p0 out of range  :";}
+    if(p1cmd == thrust || p1cmd == slash){p1result = "===  p1 out of range  :";}
   }
   //can only hit each other when adjacent
 
@@ -232,18 +253,26 @@ void SetPlayerInputs(int keypressed)
         roundOn = TRUE;
 				ExecuteInputs(p0cmd,p1cmd);
 
-          // asterisk for the ceiling and floor to create a hallway visual
+          //newlines to move the previous turn further out of the way
         for (int n = 0; n < 10; n++){wprintw(win,"\n");}
+        // asterisk for the ceiling and floor to create a hallway visual
         for (int n = 0; n < boardsize * squaresize; n++){wprintw(win,"*");}
-        for (int n = 0; n < 2; n++){wprintw(win,"\n");}
-
+        wprintw(win,"\n");
+        int p0resultsize = string_size(p0result);
+        int p1resultsize = string_size(p1result);
+        for (int n = 0; n < ( boardsize * squaresize) - p1resultsize; n++){wprintw(win," ");}
+        wprintw(win,"%s",p1result);
+        wprintw(win,"\n");
 				ResetBoard();
 				PlacePlayerZero();
 				PlacePlayerOne();
 
 				DrawBoard();
         // asterisk for the ceiling and floor to create a hallway visual
-        for (int n = 0; n < 2; n++){wprintw(win,"\n");}
+        wprintw(win,"\n");
+        wprintw(win,"%s",p0result);
+        for (int n = 0; n < ( boardsize * squaresize) - p0resultsize; n++){wprintw(win," ");}
+        wprintw(win,"\n");
         for (int n = 0; n < boardsize * squaresize; n++){wprintw(win,"*");}
 			}
 
@@ -261,7 +290,7 @@ void DrawBoard()
 		{
 
 			colcount = 0;
-			while (colcount < squaresize * boardsize)
+			while (colcount < (squaresize * boardsize) + 1)
 			{
 				wprintw(win,"%c", rows[rowcount][colcount]);
 				colcount = colcount + 1;
@@ -270,8 +299,8 @@ void DrawBoard()
 			wprintw(win,"\n");
 		}
 
-    wprintw(win,"%s",p0result);
-    wprintw(win,"%s",p1result);
+    // wprintw(win,"%s",p0result);
+    // wprintw(win,"%s",p1result);
 
 }
 void ResetBoard()
