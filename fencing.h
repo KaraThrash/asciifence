@@ -1,4 +1,4 @@
-int grip = 1,thrust = 2,slash = 3,block = 4,parry = 5,movement = 6;
+int grip = 1,thrust = 3,slash = 4,block = 5,parry = 7,movement = 8;
 const char* p0result = "p0result";
 const char* p1result = "p1result";
 char p0input;
@@ -15,10 +15,13 @@ int p1cmd ;
 int boardsize = 8;
 int squaresize = 10;
 int totalrows = 5;
-char rows[5][96] ;
+char rows[5][80] ;
 bool gameOn = TRUE;
 //if a hit is scored mid round do not finish carrying out the actions inputed
 bool roundOn = FALSE;
+//specific images for clashes to prevent line spacing issues
+//when an attack hits, blocked, parried, bumping heads?
+bool clash = FALSE;
   WINDOW * win;
   int sign(int x);
 void GameLoop();

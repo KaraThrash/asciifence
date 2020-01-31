@@ -182,8 +182,8 @@ void ExecuteInputs(int p0action,int p1action)
 roundOn = FALSE;
 
 	//reset player inputs to blank
-	p0cmd = 0;
-	p1cmd = 0;
+	// p0cmd = 0;
+	// p1cmd = 0;
 
 
 }
@@ -203,48 +203,48 @@ void SetPlayerInputs(int keypressed)
    //grip change >> thrust >> slash >> block >> parry >>  move
    //   0 >> 1 >>   2  >>   3   >>    4 u/d   >>  5  >> 6
    if( keypressed == 81  ) //q
-   {p0cmd = 4; } //block up
+   {p0cmd = block; } //block up
    if( keypressed == 119  ) //w
-{p0cmd = 1; } //grip up
+{p0cmd = grip; } //grip up
    if( keypressed == 101 ) //e
-   {p0cmd = 2; } //thrust
+   {p0cmd = thrust; } //thrust
 
    if( keypressed == 97  ) //a
-   {p0cmd = -6; } //move back
+   {p0cmd = -movement; } //move back
    if( keypressed == 115  ) //s
-      {p0cmd = 5; } //parry
+      {p0cmd = parry; } //parry
    if( keypressed == 100 ) //d
-   {p0cmd = 6;} //move fwd
+   {p0cmd = movement;} //move fwd
 
    if( keypressed == 122  ) //z
-   {p0cmd = -4; } //block down
+   {p0cmd = -block; } //block down
    if( keypressed == 120  ) //x
-  {p0cmd = -1; } //grip down
+  {p0cmd = -grip; } //grip down
    if( keypressed == 99 ) //c
-   {p0cmd = 3; } //slash
+   {p0cmd = slash; } //slash
 
 
 
    if( keypressed == 105  )//i
-   {p1cmd = 2; } //thrust
+   {p1cmd = thrust; } //thrust
    if( keypressed == 111  ) // o
-   {p1cmd = 1; } //grip up
+   {p1cmd = grip; } //grip up
    if( keypressed == 112 ) //p
-   {p1cmd = 4; } //block up
+   {p1cmd = block; } //block up
 
    if( keypressed == 107  ) //k
-      {p1cmd = -6;} //move fwd
+      {p1cmd = -movement;} //move fwd
    if( keypressed == 108  ) //l
-     {p1cmd = 5; } //parry
+     {p1cmd = parry; } //parry
    if( keypressed == 59 ) // ;
-      {p1cmd = 6; } //move back
+      {p1cmd = movement; } //move back
 
    if( keypressed == 44  ) // ,
-     {p1cmd = 3; } //slash
+     {p1cmd = slash; } //slash
    if( keypressed == 46  ) //.
-  {p1cmd = -1; } //grip down
+  {p1cmd = -grip; } //grip down
    if( keypressed == 47 ) ///
-     {p1cmd = -4; } //block down
+     {p1cmd = -block; } //block down
 
 
 
@@ -274,6 +274,9 @@ void SetPlayerInputs(int keypressed)
         for (int n = 0; n < ( boardsize * squaresize) - p0resultsize; n++){wprintw(win," ");}
         wprintw(win,"\n");
         for (int n = 0; n < boardsize * squaresize; n++){wprintw(win,"*");}
+        //
+        p0cmd = 0;
+        p1cmd = 0;
 			}
 
 
@@ -288,7 +291,7 @@ void DrawBoard()
 		rowcount = 0;
 		while (rowcount < 5)
 		{
-
+        // wprintw(win,"%s", rows[rowcount]);
 			colcount = 0;
 			while (colcount < (squaresize * boardsize) + 1)
 			{
@@ -313,7 +316,7 @@ void ResetBoard()
 		while (rowcount < 5)
 		{
 			colcount = 0;
-			while (colcount < 84)
+			while (colcount < (boardsize * squaresize))
 			{
 				rows[rowcount][colcount ] = 32;
 				colcount = colcount + 1;
@@ -328,13 +331,23 @@ void PlacePlayerZero()
 {
 	int rowcount = 0;
 	int colcount = 0;
-
+  int absp0cmd = abs(p0cmd);
+  if(p0cmd == -block){absp0cmd = 6;}
 	while (rowcount < 5)
 	{
 		colcount = 0;
-		while (colcount < squaresize)
+		while (colcount < squaresize )
 		{
-			rows[rowcount][colcount + (p0pos * squaresize)] = p0s0[p0stance][rowcount][colcount];
+
+      if(absp0cmd >= thrust && absp0cmd < movement)
+      {
+
+        rows[rowcount][colcount + (p0pos * squaresize)] = p0s0[absp0cmd][rowcount][colcount];
+
+      }
+      else
+      {rows[rowcount][colcount + (p0pos * squaresize)] = p0s0[p0stance][rowcount][colcount];}
+
 			colcount = colcount + 1;
 		}
 			rowcount = rowcount + 1;
@@ -344,24 +357,36 @@ void PlacePlayerZero()
 void PlacePlayerOne()
 {
 	int rowcount = 0;
-	int colcount = -2;
+	int colcount = 0;
+    int absp1cmd = abs(p1cmd);
+    if(p1cmd == -block){absp1cmd = 6;}
 	char c = 0;
 	while (rowcount < 5)
 	{
-		colcount = -2;
-		while (colcount <= squaresize - 2)
+		colcount = 0;
+		while (colcount <= squaresize )
 		{
+      if(absp1cmd >= thrust && absp1cmd < movement)
+      {
 
-			 c = rows[rowcount][colcount + (p1pos * squaresize) ];
-			if(c == 45 && p1s0[p1stance][rowcount][colcount + 2] == 45)
-			{		rows[rowcount][colcount + (p1pos * squaresize) ] = 120;}
-				else
-				{
-					if(p1s0[p1stance][rowcount][colcount + 2] != 32)
-					{rows[rowcount][colcount + (p1pos * squaresize) ] = p1s0[p1stance][rowcount][colcount + 2]; }
+        rows[rowcount][colcount + (p1pos * squaresize)] = p1s0[absp1cmd][rowcount][colcount];
+
+      }
+      else
+      {rows[rowcount][colcount + (p1pos * squaresize)] = p1s0[p1stance][rowcount][colcount];}
+
+      // rows[rowcount][colcount + (p1pos * squaresize) ] = p1s0[p1stance][rowcount][colcount ];
+			//  c = rows[rowcount][colcount + (p1pos * squaresize) ];
+			// if(c == 45 && p1s0[p1stance][rowcount][colcount + 2] == 45)
+			// {		rows[rowcount][colcount + (p1pos * squaresize) ] = 120;}
+			// 	else
+			// 	{
+      //     rows[rowcount][colcount + (p1pos * squaresize) ] = p1s0[p1stance][rowcount][colcount + 2];
+			// 		if(p1s0[p1stance][rowcount][colcount + 2] != 32)
+			// 		{ }
 
 
-				}
+				// }
 			// rows[rowcount][colcount + (p1pos * squaresize) - 2] = p1s0[p1stance][rowcount][colcount];
 			colcount = colcount + 1;
 		}
