@@ -253,27 +253,13 @@ void SetPlayerInputs(int keypressed)
         roundOn = TRUE;
 				ExecuteInputs(p0cmd,p1cmd);
 
-          //newlines to move the previous turn further out of the way
-        for (int n = 0; n < 10; n++){wprintw(win,"\n");}
-        // asterisk for the ceiling and floor to create a hallway visual
-        for (int n = 0; n < boardsize * squaresize; n++){wprintw(win,"*");}
-        wprintw(win,"\n");
-        int p0resultsize = string_size(p0result);
-        int p1resultsize = string_size(p1result);
-        for (int n = 0; n < ( boardsize * squaresize) - p1resultsize; n++){wprintw(win," ");}
-        wprintw(win,"%s",p1result);
-        wprintw(win,"\n");
+
 				ResetBoard();
 				PlacePlayerZero();
 				PlacePlayerOne();
 
 				DrawBoard();
-        // asterisk for the ceiling and floor to create a hallway visual
-        wprintw(win,"\n");
-        wprintw(win,"%s",p0result);
-        for (int n = 0; n < ( boardsize * squaresize) - p0resultsize; n++){wprintw(win," ");}
-        wprintw(win,"\n");
-        for (int n = 0; n < boardsize * squaresize; n++){wprintw(win,"*");}
+
         //
         p0cmd = 0;
         p1cmd = 0;
@@ -288,6 +274,19 @@ void DrawBoard()
 	int rowcount = 0;
 	int colcount = 0;
 
+      //newlines to move the previous turn further out of the way
+    for (int n = 0; n < 10; n++){wprintw(win,"\n");}
+    // asterisk for the ceiling and floor to create a hallway visual
+    for (int n = 0; n < boardsize * squaresize; n++){wprintw(win,"*");}
+    wprintw(win,"\n");
+    int p0resultsize = string_size(p0result);
+    int p1resultsize = string_size(p1result);
+    wprintw(win,"%s",p0result);
+    for (int n = 0; n < ( boardsize * squaresize) - (p1resultsize + p0resultsize); n++){wprintw(win," ");}
+    wprintw(win,"%s",p1result);
+    wprintw(win,"\n");
+
+
 		rowcount = 0;
 		while (rowcount < 5)
 		{
@@ -301,9 +300,27 @@ void DrawBoard()
 			rowcount = rowcount + 1;
 			wprintw(win,"\n");
 		}
+    // asterisk for the ceiling and floor to create a hallway visual
+    wprintw(win,"\n");
 
-    // wprintw(win,"%s",p0result);
-    // wprintw(win,"%s",p1result);
+
+
+    for (int n = 0; n < ( boardsize * squaresize) ; n++){
+      if(n % squaresize == 0)
+      {
+          wprintw(win,"|");
+        n = n + 1;
+       }
+      wprintw(win," ");
+      if(n % squaresize == (squaresize / 2))
+      {
+          wprintw(win,"%c", 49 + (n / squaresize));
+        n = n + 1;
+       }
+    }
+    wprintw(win,"\n");
+    for (int n = 0; n < boardsize * squaresize; n++){wprintw(win,"*");}
+
 
 }
 void ResetBoard()
@@ -316,7 +333,8 @@ void ResetBoard()
 		while (rowcount < 5)
 		{
 			colcount = 0;
-			while (colcount < (boardsize * squaresize))
+      //Note: needs to include the last row so that player one animations dont persist
+			while (colcount <= (boardsize * squaresize))
 			{
 				rows[rowcount][colcount ] = 32;
 				colcount = colcount + 1;
@@ -409,12 +427,9 @@ void GameLoop()
 
         else
         {
-          //48 is 0 122 is lowercase x
+          //30 is , 122 is lowercase x
           if( inputchar > 30 && inputchar < 123)
           {
-
-            // wprintw(win,"%c", inputchar);
-              // wprintw(win,"\n");
 
               //set input for players
               SetPlayerInputs(inputchar);
@@ -439,7 +454,7 @@ int width;
 
 	initscr();			/* Start curses mode 		*/
   getmaxyx(stdscr, height, width);
-   win = newwin(height - 2, width - 2, 1, 1);
+   win = newwin(height / 2, width, 1, 1);
 	raw();				/* Line buffering disabled	*/
 	keypad(win, TRUE);		/* We get F1, F2 etc..		*/
 	noecho();			/* Don't echo() while we do getch */

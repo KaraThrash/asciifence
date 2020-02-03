@@ -15,7 +15,7 @@ int p1cmd ;
 int boardsize = 8;
 int squaresize = 10;
 int totalrows = 5;
-char rows[5][80] ;
+char rows[5][81] ;
 bool gameOn = TRUE;
 //if a hit is scored mid round do not finish carrying out the actions inputed
 bool roundOn = FALSE;
